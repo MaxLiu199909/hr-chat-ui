@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR面试邀请</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #a9c9ff 0%, #ffbbec 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .chat-header {
+            padding: 16px 20px;
+            background-color: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .status {
+            width: 10px;
+            height: 10px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+        
+        .company-info {
+            font-size: 14px;
+            color: #666;
+            margin-left: 5px;
+        }
+        
+        .more-button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f9fafc;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            justify-content: flex-end;
+        }
+        
+        .hr-message {
+            justify-content: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            position: relative;
+        }
+        
+        .user-bubble {
+            background-color: #8a4af3;
+            color: white;
+            border-top-right-radius: 4px;
+        }
+        
+        .hr-bubble {
+            background-color: white;
+            color: #333;
+            border-top-left-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .timestamp {
+            font-size: 12px;
+            color: #aaa;
+            margin: 5px 0;
+            text-align: center;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+        }
+        
+        .typing-dots {
+            display: flex;
+            margin-left: 6px;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+        
+        .system-message {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.05);
+            color: #666;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            margin: 15px auto;
+            max-width: 80%;
+        }
+        
+        .tabs {
+            display: flex;
+            padding: 10px 20px;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: none; /* 隐藏标签栏 */
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            margin-right: 12px;
+            font-size: 14px;
+            color: #666;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background-color: #f0f5ff;
+            color: #2979ff;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: #f9f9f9;
+        }
+        
+        .chat-footer {
+            padding: 16px 20px;
+            background-color: white;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-area {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .message-input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 0 15px;
+            font-size: 15px;
+            background-color: #f8f8f8;
+            transition: all 0.3s;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: #8a4af3;
+            background-color: white;
+            box-shadow: 0 0 0 2px rgba(138, 74, 243, 0.1);
+        }
+        
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #8a4af3;
+            color: white;
+            border: none;
+            margin-left: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .send-button:hover {
+            background-color: #7b3edb;
+            transform: scale(1.05);
+        }
+        
+        .send-tip {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .hr-action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        
+        .action-button {
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .accept-button {
+            background-color: #8a4af3;
+            color: white;
+        }
+        
+        .reschedule-button {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="header-left">
+                <div class="avatar">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                </div>
+                <div class="header-title">Jesse 范 <span class="status"></span></div>
+                <div class="company-info">· 淘天集团招聘专员</div>
+            </div>
+            <button class="more-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <circle cx="19" cy="12" r="1"></circle>
+                    <circle cx="5" cy="12" r="1"></circle>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="chat-body">
+            <div class="timestamp">今天 14:30</div>
+            
+            <div class="system-message">
+                Jesse 范想要与您沟通关于"前端开发工程师"职位的面试事宜
+            </div>
+            
+            <div class="message hr-message">
+                <div class="avatar">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                </div>
+                <div class="message-bubble hr-bubble">
+                    您好！我是淘天集团的招聘专员Jesse范。我们正在寻找优秀的前端开发工程师，通过人才库看到您的技术背景非常匹配我们的需求。淘天是一家快速成长的科技公司，专注于电商和云计算领域，我们的前端团队正在开发新一代的用户界面框架。请问您最近有换工作的打算吗？如果方便，我想了解一下您的技术专长和项目经验。
+                </div>
+            </div>
+            
+            <div class="typing-indicator">
+                <span>正在输入</span>
+                <div class="typing-dots">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+            
+            <div class="hr-action-buttons">
+                <button class="action-button accept-button">同意沟通</button>
+                <button class="action-button reschedule-button">暂不考虑</button>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active">聊天</div>
+            <div class="tab">简历</div>
+            <div class="tab">岗位详情</div>
+            <div class="tab">面试准备</div>
+        </div>
+        
+        <div class="chat-footer">
+            <div class="input-area">
+                <input type="text" class="message-input" placeholder="输入您的回复...">
+                <span class="send-tip">可按 Enter 键发送</span>
+            </div>
+            <button class="send-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.querySelector('.message-input');
+            const sendButton = document.querySelector('.send-button');
+            const chatBody = document.querySelector('.chat-body');
+            const typingIndicator = document.querySelector('.typing-indicator');
+            const actionButtons = document.querySelector('.hr-action-buttons');
+            
+            // 发送消息的函数
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // 创建用户消息元素
+                    const userMessage = document.createElement('div');
+                    userMessage.className = 'message user-message';
+                    userMessage.innerHTML = `
+                        <div class="message-bubble user-bubble">
+                            ${message}
+                        </div>
+                    `;
+                    
+                    // 移除操作按钮和打字指示器
+                    if (actionButtons) {
+                        actionButtons.remove();
+                    }
+                    if (typingIndicator) {
+                        typingIndicator.remove();
+                    }
+                    
+                    // 添加到聊天区域
+                    chatBody.appendChild(userMessage);
+                    
+                    // 清空输入框
+                    messageInput.value = '';
+                    
+                    // 滚动到底部
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                     
+                    // 模拟HR回复
+                    setTimeout(() => {
+                        const newTypingIndicator = document.createElement('div');
+                        newTypingIndicator.className = 'typing-indicator';
+                        newTypingIndicator.innerHTML = `
+                            <span>正在输入</span>
+                            <div class="typing-dots">
+                                <span class="typing-dot"></span>
+                                <span class="typing-dot"></span>
+                                <span class="typing-dot"></span>
+                            </div>
+                        `;
+                        chatBody.appendChild(newTypingIndicator);
+                        chatBody.scrollTop = chatBody.scrollHeight;
+                        
+                        // 模拟打字时间
+                        setTimeout(() => {
+                            chatBody.removeChild(newTypingIndicator);
+                            
+                            const hrMessage = document.createElement('div');
+                            hrMessage.className = 'message hr-message';
+                            hrMessage.innerHTML = `
+                                <div class="avatar">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                                </div>
+                                <div class="message-bubble hr-bubble">
+                                    非常感谢您的分享！您的技术栈和项目经验非常符合我们的岗位需求。期待周五与您的视频面试，届时我会提前5分钟发送面试链接给您。如有任何问题，随时可以在这里询问我。
+                                </div>
+                            `;
+                            
+                            chatBody.appendChild(hrMessage);
+                            chatBody.scrollTop = chatBody.scrollHeight;
+                        }, 2000);
+                    }, 1000);
+                }
+            }
+            
+            // 点击发送按钮
+            sendButton.addEventListener('click', sendMessage);
+            
+            // 按Enter键发送
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // 同意沟通按钮点击事件
+            const acceptButton = document.querySelector('.accept-button');
+            if (acceptButton) {
+                acceptButton.addEventListener('click', function() {
+                    // 移除操作按钮和打字指示器
+                    if (actionButtons) {
+                        actionButtons.remove();
+                    }
+                    if (typingIndicator) {
+                        typingIndicator.remove();
+                    }
+                    
+                    // 创建用户消息
+                    const userMessage = document.createElement('div');
+                    userMessage.className = 'message user-message';
+                    userMessage.innerHTML = `
+                        <div class="message-bubble user-bubble">
+                            我同意沟通，感谢您的邀请。
+                        </div>
+                    `;
+                    chatBody.appendChild(userMessage);
+                    
+                    // 滚动到底部
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    
+                    // 模拟HR回复
+                    setTimeout(() => {
+                        const hrMessage = document.createElement('div');
+                        hrMessage.className = 'message hr-message';
+                        hrMessage.innerHTML = `
+                            <div class="avatar">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                            </div>
+                            <div class="message-bubble hr-bubble">
+                                太好了！我们会在周五14:00进行视频面试，届时我会发送面试链接给您。请您准备好相关的材料和问题。
+                            </div>
+                        `;
+                        
+                        chatBody.appendChild(hrMessage);
+                        chatBody.scrollTop = chatBody.scrollHeight;
+                    }, 1500);
+                });
+            }
+            
+            // 暂不考虑按钮点击事件
+            const rescheduleButton = document.querySelector('.reschedule-button');
+            if (rescheduleButton) {
+                rescheduleButton.addEventListener('click', function() {
+                    // 移除操作按钮和打字指示器
+                    if (actionButtons) {
+                        actionButtons.remove();
+                    }
+                    if (typingIndicator) {
+                        typingIndicator.remove();
+                    }
+                    
+                    // 创建用户消息
+                    const userMessage = document.createElement('div');
+                    userMessage.className = 'message user-message';
+                    userMessage.innerHTML = `
+                        <div class="message-bubble user-bubble">
+                            我暂不考虑这个职位，感谢您的邀请。
+                        </div>
+                    `;
+                    chatBody.appendChild(userMessage);
+                    
+                    // 滚动到底部
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    
+                    // 模拟HR回复
+                    setTimeout(() => {
+                        const hrTyping = document.createElement('div');
+                        hrTyping.className = 'typing-indicator';
+                        hrTyping.innerHTML = `
+                            <span>正在输入</span>
+                            <div class="typing-dots">
+                                <span class="typing-dot"></span>
+                                <span class="typing-dot"></span>
+                                <span class="typing-dot"></span>
+                            </div>
+                        `;
+                        chatBody.appendChild(hrTyping);
+                        
+                        setTimeout(() => {
+                            chatBody.removeChild(hrTyping);
+                            
+                            const hrMessage = document.createElement('div');
+                            hrMessage.className = 'message hr-message';
+                            hrMessage.innerHTML = `
+                                <div class="avatar">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                                </div>
+                                <div class="message-bubble hr-bubble">
+                                    没问题，感谢您的回复。如果您以后有任何新的机会或需求，请随时联系我。
+                                </div>
+                            `;
+                            
+                            chatBody.appendChild(hrMessage);
+                            chatBody.scrollTop = chatBody.scrollHeight;
+                        }, 1800);
+                    }, 1000);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR面试邀请</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #a9c9ff 0%, #ffbbec 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .chat-header {
+            padding: 16px 20px;
+            background-color: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .status {
+            width: 10px;
+            height: 10px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+        
+        .company-info {
+            font-size: 14px;
+            color: #666;
+            margin-left: 5px;
+        }
+        
+        .more-button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f9fafc;
+            position: relative;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            justify-content: flex-end;
+        }
+        
+        .hr-message {
+            justify-content: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            position: relative;
+        }
+        
+        .user-bubble {
+            background-color: #8a4af3;
+            color: white;
+            border-top-right-radius: 4px;
+        }
+        
+        .hr-bubble {
+            background-color: white;
+            color: #333;
+            border-top-left-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .timestamp {
+            font-size: 12px;
+            color: #aaa;
+            margin: 5px 0;
+            text-align: center;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background-color: #f9fafc;
+        }
+        
+        .typing-dots {
+            display: flex;
+            margin-left: 6px;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+        
+        .system-message {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.05);
+            color: #666;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            margin: 15px auto;
+            max-width: 80%;
+        }
+        
+        .tabs {
+            display: flex;
+            padding: 10px 20px;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+        }
+        
+        .tab {
+            margin-right: 24px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            padding-bottom: 5px;
+        }
+        
+        .tab.active {
+            color: #8a4af3;
+            font-weight: 500;
+        }
+        
+        .tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #8a4af3;
+            border-radius: 3px;
+        }
+        
+        .chat-footer {
+            padding: 16px 20px;
+            background-color: white;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-area {
+            flex: 1;
+            position: relative;
+        }
+        
+        .message-input {
+            width: 100%;
+            border: none;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+            padding: 12px 20px;
+            font-size: 15px;
+            color: #333;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .message-input:focus {
+            background-color: #eaeaea;
+        }
+        
+        .send-tip {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .message-input:focus + .send-tip {
+            display: none;
+        }
+        
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #8a4af3;
+            color: white;
+            border: none;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .send-button:hover {
+            background-color: #7c3adc;
+            transform: scale(1.05);
+        }
+        
+        .send-button:active {
+            transform: scale(0.95);
+        }
+        
+        .hr-action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .action-button {
+            padding: 8px 16px;
+            border-radius: 18px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .accept-button {
+            background-color: #8a4af3;
+            color: white;
+        }
+        
+        .reschedule-button {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="header-left">
+                <div class="avatar">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                </div>
+                <div class="header-title">Jesse 范 <span class="status"></span></div>
+                <div class="company-info">· 淘天集团招聘专员</div>
+            </div>
+            <button class="more-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <circle cx="19" cy="12" r="1"></circle>
+                    <circle cx="5" cy="12" r="1"></circle>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="chat-body">
+            <div class="timestamp">今天 {{ current_time }}</div>
+            
+            <div class="system-message">
+                Jesse 范想要与您沟通关于"前端开发工程师"职位的面试事宜
+            </div>
+            
+            {% for message in messages %}
+                {% if message.sender == 'user' %}
+                <div class="message user-message">
+                    <div class="message-bubble user-bubble">
+                        {{ message.content }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="message hr-message">
+                    <div class="avatar">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                    </div>
+                    <div class="message-bubble hr-bubble">
+                        {{ message.content }}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            <div class="typing-indicator" style="display: none;">
+                <span>正在输入</span>
+                <div class="typing-dots">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+            
+            <div class="hr-action-buttons">
+                <button class="action-button accept-button" onclick="acceptInterview()">同意沟通</button>
+                <button class="action-button reschedule-button" onclick="rescheduleInterview()">暂不考虑</button>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active">聊天</div>
+            <div class="tab">简历</div>
+            <div class="tab">岗位详情</div>
+            <div class="tab">面试准备</div>
+        </div>
+        
+        <div class="chat-footer">
+            <div class="input-area">
+                <input type="text" class="message-input" placeholder="输入您的回复..." id="messageInput">
+                <span class="send-tip">可按 Enter 键发送</span>
+            </div>
+            <button class="send-button" onclick="sendMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const messageInput = document.getElementById('messageInput');
+        const chatBody = document.querySelector('.chat-body');
+        const typingIndicator = document.querySelector('.typing-indicator');
+        const actionButtons = document.querySelector('.hr-action-buttons');
+        
+        // 全局变量
+        let isWaitingForResponse = false;
+        const typingSpeed = 10; // 每个字符的打字速度（毫秒）
+        
+        // 发送消息函数
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message && !isWaitingForResponse) {
+                // 设置等待状态
+                isWaitingForResponse = true;
+                
+                // 添加用户消息到聊天界面
+                addUserMessage(message);
+                
+                // 清空输入框
+                messageInput.value = '';
+                
+                // 隐藏操作按钮
+                if (actionButtons) actionButtons.style.display = 'none';
+                
+                // 显示打字指示器
+                showTypingIndicator();
+                
+                // 滚动到底部
+                scrollToBottom();
+                
+                // 发送消息到服务器
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // 模拟真人打字效果
+                    simulateTyping(data.reply);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    hideTypingIndicator();
+                    isWaitingForResponse = false;
+                    addHRMessage("抱歉，系统出现了错误，请稍后再试。");
+                });
+            }
+        }
+        
+        // 添加用户消息
+        function addUserMessage(text) {
+            console.log("开始添加用户消息:", text);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            messageDiv.innerHTML = `
+                <div class="message-bubble user-bubble">
+                    ${text}
+                </div>
+            `;
+            console.log("用户消息HTML:", messageDiv.outerHTML);
+            
+            // 设置初始透明度为0
+            messageDiv.style.opacity = '0';
+            
+            // 直接添加到聊天区域末尾
+            chatBody.appendChild(messageDiv);
+            console.log("用户消息添加完成");
+            
+            // 触发重排后添加动画
+            setTimeout(() => {
+                messageDiv.style.transition = 'opacity 0.3s ease';
+                messageDiv.style.opacity = '1';
+                
+                // 在消息显示动画结束后滚动到底部
+                setTimeout(() => {
+                    scrollToBottom();
+                }, 300);
+            }, 10);
+        }
+        
+        // 添加HR消息
+        function addHRMessage(text) {
+            console.log("开始添加HR消息:", text);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message hr-message';
+            messageDiv.innerHTML = `
+                <div class="avatar">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                </div>
+                <div class="message-bubble hr-bubble">
+                    ${text}
+                </div>
+            `;
+            console.log("HR消息HTML:", messageDiv.outerHTML);
+            
+            // 设置初始透明度为0
+            messageDiv.style.opacity = '0';
+            
+            // 隐藏打字指示器
+            hideTypingIndicator();
+            
+            // 直接添加到聊天区域末尾
+            chatBody.appendChild(messageDiv);
+            console.log("HR消息添加完成");
+            
+            // 触发重排后添加动画
+            setTimeout(() => {
+                messageDiv.style.transition = 'opacity 0.3s ease';
+                messageDiv.style.opacity = '1';
+                
+                // 在消息显示动画结束后滚动到底部
+                setTimeout(() => {
+                    scrollToBottom();
+                }, 300);
+            }, 10);
+        }
+        
+        // 模拟打字效果
+        function simulateTyping(text) {
+            // 计算打字时间
+            const typingLength = Math.min(text.length, 100); // 限制最大模拟长度
+            const typingDuration = typingLength * typingSpeed;
+            
+            // 最少显示打字指示器1秒钟
+            const minTypingDuration = 1000;
+            const actualTypingDuration = Math.max(typingDuration, minTypingDuration);
+            
+            // 延迟后添加HR消息
+            setTimeout(() => {
+                addHRMessage(text);
+                isWaitingForResponse = false;
+            }, actualTypingDuration);
+        }
+        
+        // 显示输入指示器
+        function showTypingIndicator() {
+            if (typingIndicator) {
+                typingIndicator.style.display = 'flex';
+                
+                // 添加出现动画
+                typingIndicator.style.opacity = '0';
+                setTimeout(() => {
+                    typingIndicator.style.transition = 'opacity 0.3s ease';
+                    typingIndicator.style.opacity = '1';
+                }, 10);
+                
+                scrollToBottom();
+            }
+        }
+        
+        // 隐藏输入指示器
+        function hideTypingIndicator() {
+            if (typingIndicator) {
+                typingIndicator.style.opacity = '0';
+                setTimeout(() => {
+                    typingIndicator.style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        // 滚动到底部，添加平滑效果
+        function scrollToBottom() {
+            // 使用短暂延迟确保DOM已更新
+            setTimeout(() => {
+                // 保存当前滚动位置
+                const currentScroll = chatBody.scrollTop;
+                const scrollHeight = chatBody.scrollHeight;
+                const clientHeight = chatBody.clientHeight;
+                
+                // 如果已经在底部或接近底部，才执行平滑滚动
+                if (scrollHeight - currentScroll - clientHeight < 200) {
+                    chatBody.scrollTo({
+                        top: scrollHeight,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    // 如果用户已经向上滚动查看历史消息，则不自动滚动到底部
+                    // 而是显示一个提示，用户可以点击滚动到底部
+                    // 这里可以根据需求添加一个"滚动到底部"的按钮
+                    console.log("用户正在查看历史消息，不自动滚动");
+                }
+            }, 50);
+        }
+        
+        // 接受面试函数
+        function acceptInterview() {
+            if (isWaitingForResponse) return;
+            isWaitingForResponse = true;
+            
+            // 隐藏操作按钮
+            if (actionButtons) actionButtons.style.display = 'none';
+            
+            // 显示打字指示器
+            showTypingIndicator();
+            
+            // 发送接受面试请求
+            fetch('/accept_interview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("接收到的所有消息:", JSON.stringify(data.messages));
+                // 隐藏打字指示器
+                hideTypingIndicator();
+                
+                // 获取系统消息和时间戳元素
+                const systemMessage = document.querySelector('.system-message');
+                
+                // 确保有两条消息（用户消息和HR消息）
+                if (data.messages && data.messages.length === 2) {
+                    // 先显示用户消息
+                    const userMsg = data.messages[0];
+                    addUserMessage(userMsg.content);
+                    
+                    // 300毫秒后显示HR消息，模拟打字效果
+                    setTimeout(() => {
+                        // 显示打字指示器
+                        showTypingIndicator();
+                        
+                        // 延迟1秒后显示HR消息
+                        setTimeout(() => {
+                            // 隐藏打字指示器
+                            hideTypingIndicator();
+                            
+                            // 添加HR消息
+                            const hrMsg = data.messages[1];
+                            addHRMessage(hrMsg.content);
+                            
+                            // 恢复响应状态
+                            isWaitingForResponse = false;
+                        }, 1000);
+                    }, 300);
+                } else {
+                    console.error("接收到的消息不符合预期格式");
+                    isWaitingForResponse = false;
+                }
+            })
+            .catch(error => {
+                console.error('接受面试请求失败:', error);
+                hideTypingIndicator();
+                isWaitingForResponse = false;
+            });
+        }
+        
+        // 调整时间函数
+        function rescheduleInterview() {
+            if (isWaitingForResponse) return;
+            isWaitingForResponse = true;
+            
+            // 隐藏操作按钮
+            if (actionButtons) actionButtons.style.display = 'none';
+            
+            // 显示打字指示器
+            showTypingIndicator();
+            
+            // 发送调整时间请求
+            fetch('/reschedule_interview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("接收到的所有消息:", JSON.stringify(data.messages));
+                // 隐藏打字指示器
+                hideTypingIndicator();
+                
+                // 清空当前消息
+                clearMessages();
+                
+                // 获取系统消息和时间戳元素
+                const systemMessage = document.querySelector('.system-message');
+                
+                // 创建临时消息容器
+                const messagesFragment = document.createDocumentFragment();
+                
+                // 添加所有消息到临时容器
+                data.messages.forEach(msg => {
+                    console.log("处理消息:", JSON.stringify(msg));
+                    console.log("消息发送者:", msg.sender, "类型:", typeof msg.sender);
+                    
+                    const messageDiv = document.createElement('div');
+                    messageDiv.style.opacity = '0';
+                    
+                    if (msg.sender === 'user') {
+                        console.log("添加用户消息");
+                        messageDiv.className = 'message user-message';
+                        messageDiv.innerHTML = `
+                            <div class="message-bubble user-bubble">
+                                ${msg.content}
+                            </div>
+                        `;
+                    } else {
+                        console.log("添加HR消息");
+                        messageDiv.className = 'message hr-message';
+                        messageDiv.innerHTML = `
+                            <div class="avatar">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="HR头像">
+                            </div>
+                            <div class="message-bubble hr-bubble">
+                                ${msg.content}
+                            </div>
+                        `;
+                    }
+                    
+                    // 添加到临时容器
+                    messagesFragment.appendChild(messageDiv);
+                });
+                
+                // 将临时容器的内容添加到系统消息之后
+                if (systemMessage && systemMessage.nextSibling) {
+                    chatBody.insertBefore(messagesFragment, systemMessage.nextSibling);
+                } else {
+                    // 如果没有系统消息或是最后一个元素，则直接添加到聊天区域末尾
+                    chatBody.appendChild(messagesFragment);
+                }
+                
+                // 为所有新添加的消息添加渐入动画
+                setTimeout(() => {
+                    const newMessages = document.querySelectorAll('.message[style*="opacity: 0"]');
+                    newMessages.forEach(msg => {
+                        msg.style.transition = 'opacity 0.3s ease';
+                        msg.style.opacity = '1';
+                    });
+                    
+                    // 滚动到底部
+                    scrollToBottom();
+                }, 10);
+                
+                isWaitingForResponse = false;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                hideTypingIndicator();
+                isWaitingForResponse = false;
+                addHRMessage("我理解您的决定，感谢您的坦诚回复。如果您未来改变主意或者有任何问题，欢迎随时联系我。祝您一切顺利！");
+            });
+        }
+        
+        // 清空消息函数
+        function clearMessages() {
+            console.log("清空消息开始");
+            // 获取所有消息元素
+            const messageElements = document.querySelectorAll('.message');
+            console.log("找到消息元素数量:", messageElements.length);
+            // 获取系统消息元素
+            const systemMessage = document.querySelector('.system-message');
+            
+            // 保留系统消息和时间戳，删除其他消息
+            messageElements.forEach(element => {
+                console.log("移除消息元素:", element.className);
+                element.remove();
+            });
+            console.log("清空消息完成");
+        }
+        
+        // 按Enter键发送消息
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // 允许在等待响应时输入新消息
+        messageInput.addEventListener('focus', function() {
+            const sendTip = document.querySelector('.send-tip');
+            if (sendTip) {
+                sendTip.style.display = 'none';
+            }
+        });
+        
+        messageInput.addEventListener('blur', function() {
+            if (messageInput.value.trim() === '') {
+                const sendTip = document.querySelector('.send-tip');
+                if (sendTip) {
+                    sendTip.style.display = 'block';
+                }
+            }
+        });
+        
+        // 初始滚动到底部
+        scrollToBottom();
+    </script>
+</body>
+</html>

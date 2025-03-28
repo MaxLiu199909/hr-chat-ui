@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天记录查询 - 淘天集团HR面试系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .header {
+            background-color: #1890ff;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        .session-card {
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .session-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .interest-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .interest-high {
+            background-color: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .interest-medium {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .interest-low {
+            background-color: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        .interest-unknown {
+            background-color: #f5f5f5;
+            color: #8c8c8c;
+            border: 1px solid #d9d9d9;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .user-message {
+            background-color: #e6f7ff;
+            margin-left: 20%;
+        }
+        .hr-message {
+            background-color: #f6ffed;
+            margin-right: 20%;
+        }
+        .timestamp {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 5px;
+        }
+        #messageList {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .back-btn {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>淘天集团HR面试系统 - 聊天记录查询</h1>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <a href="/" class="btn btn-primary back-btn">
+                    <i class="bi bi-arrow-left"></i> 返回聊天界面
+                </a>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        历史会话列表
+                    </div>
+                    <div class="card-body">
+                        <div id="sessionList" class="list-group">
+                            <!-- 会话列表将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <span id="sessionTitle">请从左侧选择会话</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="interestEvaluation" class="mb-3 p-3 border rounded" style="display: none;">
+                            <h5>候选人兴趣度评估</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>兴趣级别:</strong> <span id="interestLevel"></span></p>
+                                    <p><strong>评分:</strong> <span id="interestScore"></span>/100</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>置信度:</strong> <span id="interestConfidence"></span></p>
+                                    <p><strong>消息数量:</strong> <span id="messageCount"></span></p>
+                                </div>
+                            </div>
+                            <div>
+                                <p><strong>评估依据:</strong></p>
+                                <ul id="interestReasons" class="mb-0"></ul>
+                            </div>
+                        </div>
+                        <div id="messageList">
+                            <!-- 消息记录将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 页面加载时获取会话列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSessionList();
+        });
+        
+        // 加载会话列表
+        function loadSessionList() {
+            fetch('/history')
+                .then(response => response.json())
+                .then(data => {
+                    const sessionList = document.getElementById('sessionList');
+                    sessionList.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        sessionList.innerHTML = '<div class="alert alert-info">没有找到历史会话记录</div>';
+                        return;
+                    }
+                    
+                    data.forEach(session => {
+                        const createdDate = new Date(session.created_at).toLocaleString();
+                        const messageCount = session.message_count;
+                        
+                        // 获取兴趣度级别和对应的样式类
+                        const interestLevel = session.interest_level || '未知';
+                        let interestClass = 'interest-unknown';
+                        
+                        if (interestLevel === '高度感兴趣') {
+                            interestClass = 'interest-high';
+                        } else if (interestLevel === '可能感兴趣') {
+                            interestClass = 'interest-medium';
+                        } else if (interestLevel === '不太感兴趣') {
+                            interestClass = 'interest-low';
+                        }
+                        
+                        const sessionItem = document.createElement('a');
+                        sessionItem.href = '#';
+                        sessionItem.className = 'list-group-item list-group-item-action session-card';
+                        sessionItem.innerHTML = `
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">会话 #${session.session_id.substring(0, 8)}...
+                                <span class="interest-badge ${interestClass}">${interestLevel}</span></h5>
+                                <small>${messageCount} 条消息</small>
+                            </div>
+                            <small class="text-muted">创建时间: ${createdDate}</small>
+                            ${session.interest_score ? `<div class="mt-1">兴趣评分: ${session.interest_score}/100</div>` : ''}
+                        `;
+                        
+                        sessionItem.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            loadSessionMessages(session.session_id);
+                            
+                            // 移除其他项目的active类
+                            document.querySelectorAll('.session-card').forEach(item => {
+                                item.classList.remove('active');
+                            });
+                            
+                            // 添加active类到当前项目
+                            sessionItem.classList.add('active');
+                        });
+                        
+                        sessionList.appendChild(sessionItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('加载会话列表失败:', error);
+                });
+        }
+        
+        // 加载会话消息
+        function loadSessionMessages(sessionId) {
+            fetch(`/history/${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const messageList = document.getElementById('messageList');
+                    const sessionTitle = document.getElementById('sessionTitle');
+                    const interestEvaluation = document.getElementById('interestEvaluation');
+                    
+                    sessionTitle.textContent = `会话 #${sessionId.substring(0, 8)}... 的消息记录`;
+                    messageList.innerHTML = '';
+                    
+                    // 显示兴趣度评估
+                    if (data.interest_evaluation) {
+                        const evaluation = data.interest_evaluation;
+                        document.getElementById('interestLevel').textContent = evaluation.interest_level;
+                        document.getElementById('interestScore').textContent = evaluation.score;
+                        document.getElementById('interestConfidence').textContent = (evaluation.confidence * 100).toFixed(0) + '%';
+                        document.getElementById('messageCount').textContent = evaluation.message_count;
+                        
+                        const reasonsList = document.getElementById('interestReasons');
+                        reasonsList.innerHTML = '';
+                        
+                        if (evaluation.reasons && evaluation.reasons.length > 0) {
+                            evaluation.reasons.forEach(reason => {
+                                const li = document.createElement('li');
+                                li.textContent = reason;
+                                reasonsList.appendChild(li);
+                            });
+                        } else {
+                            reasonsList.innerHTML = '<li>无具体评估依据</li>';
+                        }
+                        
+                        // 根据兴趣级别设置样式
+                        interestEvaluation.className = 'mb-3 p-3 border rounded';
+                        if (evaluation.interest_level === '高度感兴趣') {
+                            interestEvaluation.classList.add('border-success', 'bg-light');
+                        } else if (evaluation.interest_level === '可能感兴趣') {
+                            interestEvaluation.classList.add('border-info', 'bg-light');
+                        } else if (evaluation.interest_level === '不太感兴趣') {
+                            interestEvaluation.classList.add('border-warning', 'bg-light');
+                        }
+                        
+                        interestEvaluation.style.display = 'block';
+                    } else {
+                        interestEvaluation.style.display = 'none';
+                    }
+                    
+                    // 显示消息
+                    const messages = data.messages || [];
+                    if (messages.length === 0) {
+                        messageList.innerHTML = '<div class="alert alert-info">该会话没有消息记录</div>';
+                        return;
+                    }
+                    
+                    messages.forEach(message => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `message ${message.sender === 'user' ? 'user-message' : 'hr-message'}`;
+                        
+                        const timestamp = new Date(message.timestamp).toLocaleString();
+                        
+                        messageDiv.innerHTML = `
+                            <div class="message-content">${message.content}</div>
+                            <div class="timestamp">${timestamp} - ${message.sender === 'user' ? '用户' : 'HR'}</div>
+                        `;
+                        
+                        messageList.appendChild(messageDiv);
+                    });
+                    
+                    // 滚动到底部
+                    messageList.scrollTop = messageList.scrollHeight;
+                })
+                .catch(error => {
+                    console.error('加载消息记录失败:', error);
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "session_id": "d8762b9b-4d85-45e6-89ee-e73d4fea0410",
+  "created_at": "2025-03-28T10:07:51.656604",
+  "messages": [],
+  "interest_evaluation": {
+    "interest_level": "未知",
+    "score": 0,
+    "confidence": 0,
+    "reasons": [
+      "对话尚未开始"
+    ],
+    "message_count": 0,
+    "updated_at": "2025-03-28T10:07:51.656609"
+  }
+}

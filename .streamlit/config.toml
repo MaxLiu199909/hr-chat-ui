@@ -1,0 +1,8 @@
+[browser]
+gatherUsageStats = false
+
+[ui]
+showHeader = false
+
+[server]
+headless = true
