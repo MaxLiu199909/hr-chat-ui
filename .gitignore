@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+
+# 保留chat_history目录但排除其中的文件
+# chat_history/*.json
+# 如果你需要保存聊天历史，可以取消上面的注释
+
+# 虚拟环境
+venv/
+env/
+ENV/
+
+# IDE文件
+.idea/
+.vscode/
+*.swp
+*.swo
